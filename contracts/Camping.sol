@@ -13,6 +13,7 @@ contract Camping {
     address public manager;
     uint public minimumContribution;
     mapping(address => bool) public approvers;
+    uint public approversCount;
     Request[] public requests;
 
     modifier restricted() {
@@ -29,6 +30,7 @@ contract Camping {
         require(msg.value > minimumContribution);
 
         approvers[msg.sender] = true;
+        approversCount++;
     }
 
     function createRequest(
@@ -54,5 +56,15 @@ contract Camping {
 
         request.approvals[msg.sender] = true;
         request.approvalCount++;
+    }
+
+    function finalizeRequest(uint index) public restricted {
+        Request storage request = requests[index];
+
+        require(request.approvalCount > (approversCount / 2));
+        require(!reques.complete);
+
+        request.recipient.transfer(request.value);
+        request.complete = true;
     }
 }
